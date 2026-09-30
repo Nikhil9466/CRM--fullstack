@@ -209,3 +209,63 @@ API additions:
 - `POST /api/recycle-bin/:type/:id/restore` (admin/sub-admin): standard cookie and CSRF protections apply.
 
 Back up the database, generate the Prisma client, run `npm run db:deploy`, and restart the backend. The integration command includes recovery, audit redaction, dependency ordering, tenant/team permissions, concurrent restoration and rollback checks on a disposable database.
+
+## Attendance
+
+Attendance uses the existing CRM users, cookie sessions, CSRF protection, organisation write transactions, activity history and team scope. It has no delete endpoint and does not use the recycle bin.
+
+### Setup and daily use
+
+After backing up the database, run these commands in `crm-backend` when installing this version on another local database:
+
+    npm run prisma:generate
+    npm run db:deploy
+    npm start
+
+Migration `20260926000000_attendance` is additive: it creates `AttendanceSettings`, `AttendanceRecord`, `AttendanceBreak` and `AttendanceCorrectionRequest`, plus composite tenant/user references, indexes, timestamp order checks and partial unique indexes. It does not reset existing data. `AttendanceDecision` stores only correction workflow decisions. The migration was applied locally during implementation, after a backup in `work/pre-attendance-20260924.dump`.
+
+1. Admin opens **Team & settings → Attendance Settings**, selects the workspace timezone (IANA name, e.g. `Asia/Kolkata`), working days, start/end times, grace minutes and expected hours. Until saved, the explicit default is UTC, Monday–Friday, 09:30–18:00, 15-minute grace and 8 expected hours.
+2. Every signed-in role can use **Attendance → My attendance → Check In → Start Break → End Break → Check Out**. Multiple breaks are supported (up to 20 per day). Server time is authoritative. UI timers are approximate between 30-second server refreshes.
+3. Employees see only their own history and correction requests. Sub-admins get **My team**, using the existing `memberScope` helper (unassigned sub-admins see themselves). Admins get the organisation dashboard, policy configuration and correction review, confined to their organisation. Dashboard team/employee/status/date filters and pagination do not expand scope.
+4. A correction proposes a complete check-in, checkout and all breaks, with a reason. It may cover a missing workday. The request changes nothing until an admin approves it. Only admins review, consistent with team-addition approvals. Admins may approve or reject their own requests as well as requests from their organisation; the reviewer remains recorded in Activity History. Rejection leaves the official record untouched. A request based on a changed record must be rejected and resubmitted. New requests also snapshot the server-selected policy, so changing the workspace policy while a missing-day correction is pending cannot alter the approved day. Legacy requests without that snapshot retain the original current-policy fallback. Duplicate pending requests, overlapping workdays, future/invalid times and overlapping breaks are rejected.
+
+### Calculations and reporting decisions
+
+- Events use UTC timestamps; `workDate` is the calendar date of check-in in the workspace policy timezone. Screens show event times in the browser timezone and state that timezone on correction forms. Correction forms preserve exact original UTC timestamps (including seconds and milliseconds) for unchanged fields; deliberately editing a field uses the newly entered local time.
+- **Worked = checkout (or server now) − check-in − all breaks**. An open break runs through server now. Expected hours are informational, with a shortfall on completed personal cards; short days are not automatically labelled absent.
+- **Late** means arrival after work start plus grace. Arrival exactly at the threshold is Present. Present/Late describe arrival; Working/On Break/Checked Out describe lifecycle. Summary counts therefore overlap intentionally.
+- **Absent** is derived for an active account with no record on a working date after scheduled end, or on a past working date. Before today's end, it is Not checked in. Dates before account creation are excluded. Off days are labelled **Holiday**; they are weekly non-working days, not a public-holiday calendar. Regular check-in on an off day is blocked; authorised off-day work can be recorded through an approved correction.
+- Historical records stay with the same user. Team reports use **current** team membership, consistent with Teams & performance. Former leaders lose access after reassignment. Inactive accounts are included only when a record exists for the selected day; deactivated sessions cannot act.
+- Each recorded day snapshots its policy; policy edits cannot retroactively change that record's late classification or expected hours. Unrecorded dates use the **current** policy. There is no historical employment schedule/calendar yet; absence reports should be interpreted accordingly.
+- Overnight schedules are not configured in this version. An existing shift can be closed after midnight within 24 hours of check-in. Older open shifts require a correction; the card offers a direct correction action instead of controls that the server would reject, even when the open day is outside the selected history range. No automatic checkout is invented. Until closed, an old shift blocks a new check-in.
+- All writes share the existing organisation row lock and post-lock session/role checks. Database uniqueness additionally enforces one record per employee/day, one open workday, one open break and one pending correction per employee/date. Corrections and their audit entries commit atomically. Activity history includes policy changes, requests, review decisions with before/after timestamps, and workday transitions; no credentials are logged.
+
+### API
+
+All routes below are under `/api` and use existing authenticated session/CSRF middleware:
+
+| Method | Route | Access / purpose |
+| --- | --- | --- |
+| GET | `/attendance/settings` | Signed-in users read their workspace policy |
+| PUT | `/attendance/settings` | Admin configures policy |
+| GET | `/attendance/today` | Own current day plus any open workday |
+| POST | `/attendance/check-in` | Own check-in, empty JSON body |
+| POST | `/attendance/start-break` | Own break start, empty JSON body |
+| POST | `/attendance/end-break` | Own break end, empty JSON body |
+| POST | `/attendance/check-out` | Own checkout, empty JSON body |
+| POST | `/attendance/records/:id/resume` | Admin only; `{version, reason}` reopens their own or an active employee’s completed current workday |
+| GET | `/attendance/history?from=YYYY-MM-DD&to=YYYY-MM-DD` | Own history; maximum 93 days |
+| GET | `/attendance/report?date=YYYY-MM-DD&teamId=…&employeeId=…&status=…&page=1` | Admin organisation / sub-admin team dashboard |
+| GET | `/attendance/corrections?view=mine&status=PENDING&page=1` | Own requests; `view=review` is admin-only |
+| POST | `/attendance/corrections` | Own `{workDate, reason, proposed: {checkIn, checkOut, breaks: [{start,end}]}}`; timestamps must be UTC ISO strings |
+| PATCH | `/attendance/corrections/:id` | Admin `{status: "APPROVED" or "REJECTED", reviewNote?}` |
+
+### Validation and future scope
+
+`npm test` includes attendance calculation, timezone, late threshold, absence, policy and correction validation tests. `npm run test:integration` includes attendance and all existing CRM integration suites. Integration tests require an explicit, separately migrated `CRM_TEST_DATABASE_URL`; they never fall back to `.env`. Attendance tests exercise real sessions, CSRF, organisation/team isolation, team reassignment, concurrent actions, corrections, stale requests, deactivation and audit entries, and clean up their own fixtures.
+
+Browser verification used a disposable database and real HTTP API: employee check-in/break/checkout, correction submission, admin approval/recalculation, policy settings, history, organisation and leader views, and responsive layouts. No test employees or attendance were added to the normal CRM database.
+
+Future improvements: dated public holidays and leave, effective-dated policy/employment calendars, reminders for open shifts, shift schedules, exports and payroll integrations. Current reports calculate summaries in memory for the permitted directory; large organisations would benefit from database-side aggregation. The existing per-organisation write lock deliberately prioritises correctness over high-volume clock-in throughput.
+
+Admins can use **Resume work** on My attendance or Organisation attendance after an accidental checkout. It preserves the original check-in and arrival classification, records the checkout-to-resume gap as a closed break, and logs the reason and previous checkout in Activity History. Only the current workday, less than 24 hours after check-in and with fewer than 20 breaks, can resume; older days require a correction. Concurrent/stale requests and overlapping shifts are rejected. Pending corrections against the old record version must be rejected and resubmitted. This change needs no additional database migration.

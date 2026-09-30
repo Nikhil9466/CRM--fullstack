@@ -15,7 +15,7 @@ router.get(
     if (req.query.type)
       where.entityType = choice(
         req.query.type,
-        ["contact", "deal", "task", "user", "team", "teamRequest", "stage"],
+        ["contact", "deal", "task", "user", "team", "teamRequest", "stage", "attendance"],
         "activity type",
       );
     if (req.query.from)
@@ -31,6 +31,11 @@ router.get(
         [key]: { contains: q, mode: "insensitive" },
       }));
       const labels = {
+        attendance_resumed: "Resumed work",
+        attendance_policy_updated: "Attendance policy updated",
+        attendance_correction_requested: "Attendance correction requested",
+        attendance_correction_approved: "Attendance correction approved",
+        attendance_correction_rejected: "Attendance correction rejected",
         recycled: "Moved to recycle bin",
         restored: "Restored",
         password_changed: "Password changed",

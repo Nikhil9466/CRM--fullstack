@@ -23,7 +23,8 @@ function sameOriginRequests(req, res, next) {
   if (
     (Number(req.headers["content-length"]) > 0 ||
       req.headers["transfer-encoding"]) &&
-    !req.is("application/json")
+    !req.is("application/json") &&
+    !(req.method === "POST" && req.path === "/documents" && req.is("application/octet-stream"))
   )
     return res
       .status(415)

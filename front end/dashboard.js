@@ -502,9 +502,19 @@ function renderHistory(data) {
         team: "Teams",
         teamRequest: "Team requests",
         stage: "Pipeline stages",
+        attendance: "Attendance",
       }
     : { contacts: "Contacts", deals: "Deals", tasks: "Tasks" };
   const actions = {
+    attendance_policy_updated: "Attendance policy updated",
+    attendance_correction_requested: "Attendance correction requested",
+    attendance_correction_approved: "Attendance correction approved",
+    attendance_correction_rejected: "Attendance correction rejected",
+    attendance_check_in: "Checked in",
+    attendance_start_break: "Started break",
+    attendance_end_break: "Ended break",
+    attendance_check_out: "Checked out",
+    attendance_resumed: "Resumed work",
     created: "Created",
     updated: "Updated",
     deleted: "Deleted",
@@ -518,6 +528,19 @@ function renderHistory(data) {
     request_rejected: "Rejected team request",
   };
   const fields = {
+    resumedAt: "Resumed at (UTC)",
+    workDate: "Workday",
+    checkIn: "Check in (UTC)",
+    checkOut: "Check out (UTC)",
+    breaks: "Break periods (UTC)",
+    reason: "Reason",
+    reviewNote: "Review note",
+    workingDays: "Working days (0=Sun)",
+    timeZone: "Workspace timezone",
+    startTime: "Work start",
+    endTime: "Work end",
+    graceMinutes: "Late grace (minutes)",
+    expectedMinutes: "Expected minutes",
     name: "Name",
     title: "Title",
     role: "Role",
@@ -601,6 +624,9 @@ function renderSettings() {
     .join("");
   $("content").innerHTML =
     `<div class="settings-grid"><div class="team-toolbar"><a class="button" href="#recycle-bin">Recycle bin</a>${isAdmin() ? '<a class="button" href="#activity">Activity history</a>' : ""}</div><a class="panel team-overview-link" href="#teams"><div><p class="eyebrow">TEAM MANAGEMENT</p><h2>Teams & performance</h2><p>${isAdmin() ? "Manage teams, review employee requests, and compare performance across your organisation." : "Manage your team, request employees, and follow everyone's progress."}</p></div><span aria-hidden="true">↗</span></a><section class="panel"><div class="panel-head people-access-head"><div><h2>${isAdmin() ? "People & access" : "Your team members"}</h2><small>${isAdmin() ? "Create employee creates a new CRM account. Assign existing employees and appoint team leaders under Teams & performance." : "Remove employees here, or request additions from Teams & performance."}</small></div>${isAdmin() ? '<button class="button primary" data-new="members">+ Create employee</button>' : ""}</div><div class="table-wrap"><table><thead><tr><th>Member</th><th>Role</th><th>Team</th><th>Status</th><th>Actions</th></tr></thead><tbody>${memberRows()}</tbody></table></div></section>${isAdmin() ? `<section class="panel"><div class="panel-head"><div><h2>Pipeline stages</h2><small>Shared across the organisation. Outcome types stay fixed to protect reports.</small></div><button class="button" data-new="stages">+ Add stage</button></div><div class="table-wrap"><table><thead><tr><th>Stage</th><th>Outcome</th><th>Position</th><th>Actions</th></tr></thead><tbody>${stages}</tbody></table></div></section>` : ""}</div>`;
+  $("content")
+    .querySelector(".settings-grid")
+    .insertAdjacentHTML("beforeend", attendanceSettingsPanel());
 }
 function performanceTable(rows, team = false) {
   return `<div class="table-wrap"><table><thead><tr><th>${team ? "Team" : "Employee"}</th><th>${team ? "People" : "Team / role"}</th><th>Contacts</th><th>Deals</th><th>Won</th><th>Won value</th><th>Tasks completed</th></tr></thead><tbody>${rows.map((r) => `<tr><td><strong>${esc(r.name)}</strong>${!team && !r.active ? "<small>Inactive</small>" : ""}</td><td>${team ? r.members : `${esc(state.teams.find((t) => t.id === r.teamId)?.name || "Unassigned")}<small>${esc(roleLabel(r.role))}</small>`}</td><td>${r.contacts}</td><td>${r.deals}</td><td>${r.won}</td><td>${esc(currency(r.revenue))}</td><td><span>${r.completed} / ${r.tasks}</span><div class="track performance-track"><span style="width:${r.tasks ? (r.completed / r.tasks) * 100 : 0}%"></span></div></td></tr>`).join("") || '<tr><td colspan="7">No records yet.</td></tr>'}</tbody></table></div>`;
@@ -652,6 +678,13 @@ async function loadView() {
       const data = await api("/dashboard?today=" + today());
       if (version !== state.version) return;
       renderDashboard(data);
+    } else if (state.view === "documents") {
+      const data = await api("/documents?page=" + state.page);
+      if (version !== state.version) return;
+      renderDocuments(data);
+    } else if (state.view === "attendance") {
+      await loadAttendance(version);
+      if (version !== state.version) return;
     } else if (state.view === "profile") {
       renderProfile();
     } else if (state.view === "teams") {
@@ -688,6 +721,9 @@ async function loadView() {
         api("/teams"),
       ]);
       state.teams = teams;
+      state.attendancePolicy = isAdmin()
+        ? await api("/attendance/settings")
+        : null;
       if (version !== state.version) return;
       state.members = members;
       state.stages = stages;
@@ -722,9 +758,11 @@ function navigate() {
   const view = location.hash.slice(1) || "overview";
   state.view = [
     "overview",
+    "attendance",
     "contacts",
     "deals",
     "tasks",
+    "documents",
     "profile",
     ...(isManager() ? ["settings", "teams", "recycle-bin"] : []),
     ...(isAdmin() ? ["activity"] : []),
@@ -755,6 +793,8 @@ function navigate() {
     contacts: "Contacts",
     deals: "Deals",
     tasks: "Tasks",
+    documents: "Document centre",
+    attendance: "Attendance",
     settings: "Team & settings",
     profile: "Your profile",
     teams: "Teams & performance",
@@ -772,6 +812,8 @@ function navigate() {
     contacts: "Good relationships start with knowing your people.",
     deals: "Every conversation is an opportunity to move forward.",
     tasks: "A clear next step for every relationship.",
+    documents: "Upload, organise and download your documents.",
+    attendance: "Your workday, breaks and attendance records in one place.",
     settings: "Keep your workspace organised and your team in control.",
     profile: "Your account, your team, and your access in one place.",
     teams: "A clear view of your people and their progress.",
@@ -783,8 +825,15 @@ function navigate() {
     state.view === "overview"
       ? "YOUR WORKSPACE AT A GLANCE"
       : "YOUR SHARED WORKSPACE";
-  $("add").hidden =
-    ["settings", "profile", "teams", "activity", "recycle-bin"].includes(state.view);
+  $("add").hidden = [
+    "documents",
+    "attendance",
+    "settings",
+    "profile",
+    "teams",
+    "activity",
+    "recycle-bin",
+  ].includes(state.view);
   $("add").textContent = {
     overview: "+ New deal",
     contacts: "+ Add contact",
@@ -807,9 +856,7 @@ $("refresh").onclick = async () => {
   }
 };
 $("add").onclick = () =>
-  openEditor(
-    state.view === "overview" ? "deals" : state.view,
-  );
+  openEditor(state.view === "overview" ? "deals" : state.view);
 const field = (name, label, value = "", type = "text", extra = "") =>
   "<label>" +
   label +

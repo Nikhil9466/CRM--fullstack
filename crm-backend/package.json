@@ -12,8 +12,8 @@
     "prisma:studio": "prisma studio",
     "db:deploy": "prisma migrate deploy",
     "admin:promote": "node scripts/admin.js",
-    "test": "node --test tests/unit.test.js tests/session.test.js tests/login-limit.test.js",
-    "test:integration": "node --test tests/integration.test.js tests/teams.test.js tests/auth-regression.test.js tests/cookies.test.js tests/history.test.js"
+    "test": "node --test tests/unit.test.js tests/session.test.js tests/login-limit.test.js tests/attendance-unit.test.js tests/attendance-ui.test.js",
+    "test:integration": "node --test tests/integration.test.js tests/teams.test.js tests/auth-regression.test.js tests/cookies.test.js tests/history.test.js tests/attendance.test.js tests/documents.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",

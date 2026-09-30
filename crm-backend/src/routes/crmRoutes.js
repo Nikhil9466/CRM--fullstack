@@ -25,7 +25,9 @@ async function own(model, id, user, db = prisma) {
   return row;
 }
 router.use(authenticate);
+router.use(require("./documentRoutes"));
 router.use(require("./teamRoutes"));
+router.use(require("./attendanceRoutes"));
 router.use(require("./historyRoutes"));
 router.get(
   "/me",

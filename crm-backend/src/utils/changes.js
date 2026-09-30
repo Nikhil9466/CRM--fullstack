@@ -39,6 +39,13 @@ const fields = {
   "team-requests": ["status"],
 };
 async function eventFor(tx, req, result, before) {
+  if (req.attendanceAudit)
+    return {
+      orgId: req.user.orgId,
+      actorId: req.user.id,
+      actorName: req.user.name,
+      ...req.attendanceAudit,
+    };
   const parts = req.path.split("/").filter(Boolean),
     root = parts[0];
   let entityType = models[root],

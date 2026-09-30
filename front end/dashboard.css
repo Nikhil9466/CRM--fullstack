@@ -1258,3 +1258,165 @@ dialog::backdrop {
   color: var(--muted);
   line-height: 1.6;
 }
+
+/* Attendance: existing panels and tables, with narrow-screen form stacking. */
+.attendance-tabs,
+.attendance-actions,
+.attendance-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.attendance-panel {
+  min-width: 0;
+}
+.attendance-body,
+.attendance-form {
+  padding: 22px;
+}
+.attendance-body > small {
+  margin-top: 16px;
+  line-height: 1.6;
+}
+.attendance-form {
+  display: grid;
+  gap: 18px;
+}
+.attendance-form label,
+.attendance-break-row label {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.attendance-form input,
+.attendance-form textarea,
+.attendance-form select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 10px;
+  font: inherit;
+}
+.attendance-form fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  min-width: 0;
+}
+.attendance-form legend {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 6px;
+}
+.attendance-days label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.attendance-days input {
+  width: auto;
+}
+.attendance-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+.attendance-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.attendance-metrics strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.attendance-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+.attendance-stat {
+  padding: 18px;
+}
+.attendance-stat strong {
+  display: block;
+  font-size: 28px;
+  margin-top: 8px;
+}
+.attendance-break-row {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+.attendance-break-row label {
+  flex: 1;
+  min-width: 0;
+}
+.attendance-feedback {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: normal;
+  max-width: 400px;
+}
+.attendance-reason {
+  white-space: normal;
+  min-width: 180px;
+  max-width: 350px;
+  overflow-wrap: anywhere;
+}
+[data-att-review] input {
+  width: 100%;
+  min-width: 160px;
+  margin-bottom: 8px;
+}
+@media (max-width: 800px) {
+  .attendance-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .attendance-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 450px) {
+  .attendance-break-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .attendance-tabs > .button {
+    flex: 1;
+  }
+  .attendance-actions > .button {
+    flex: 1;
+  }
+  .attendance-body,
+  .attendance-form {
+    padding: 18px;
+  }
+  .attendance-stat {
+    padding: 14px;
+  }
+}
+
+.document-upload { padding: 24px; margin-bottom: 24px; }
+.document-upload p { color: var(--muted, #64748b); margin: 12px 0; }
+.document-upload form { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.document-upload input { max-width: 100%; }
+.document-upload [role="status"] { flex-basis: 100%; }
+.document-name { overflow-wrap: anywhere; min-width: 180px; max-width: 360px; }
+.document-pages { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 20px; }

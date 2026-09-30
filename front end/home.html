@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="dashboard.css" />
     <script src="session.js" defer></script>
     <script src="password-visibility.js" defer></script>
+    <script src="documents.js"></script>
     <script src="dashboard.js" defer></script>
+    <script src="attendance.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -46,6 +48,10 @@
             <span>☑</span>
             Tasks
           </a>
+          <a href="#documents" data-view="documents"><span>▤</span>Document centre</a>
+          <a href="#attendance" data-view="attendance"
+            ><span>◷</span>Attendance</a
+          >
           <a href="#settings" data-view="settings" id="settingsNav" hidden>
             <span>⚙</span>
             Team &amp; settings
@@ -94,10 +100,28 @@
               />
               <kbd>/</kbd>
             </label>
-            <div id="searchResults" class="search-results" hidden aria-live="polite"></div>
+            <div
+              id="searchResults"
+              class="search-results"
+              hidden
+              aria-live="polite"
+            ></div>
           </div>
-          <button id="theme" class="icon-button" aria-label="Switch to dark mode">◐</button>
-          <a class="header-avatar" id="headerAvatar" href="#profile" aria-label="Open your profile" title="Your profile">…</a>
+          <button
+            id="theme"
+            class="icon-button"
+            aria-label="Switch to dark mode"
+          >
+            ◐
+          </button>
+          <a
+            class="header-avatar"
+            id="headerAvatar"
+            href="#profile"
+            aria-label="Open your profile"
+            title="Your profile"
+            >…</a
+          >
         </header>
         <main id="main" tabindex="-1">
           <div id="notice" class="notice" role="status" hidden></div>
@@ -105,7 +129,9 @@
             <div>
               <p class="eyebrow" id="eyebrow">YOUR WORKSPACE AT A GLANCE</p>
               <h1 id="pageTitle">Overview</h1>
-              <p class="subtitle" id="subtitle">A little clarity for your next big move.</p>
+              <p class="subtitle" id="subtitle">
+                A little clarity for your next big move.
+              </p>
             </div>
             <div class="heading-actions">
               <button id="refresh" class="button">↻ &nbsp; Refresh</button>
@@ -129,7 +155,12 @@
             <p class="eyebrow">VIRTUAL BINZ</p>
             <h2 id="editorTitle">New record</h2>
           </div>
-          <button type="button" id="closeEditor" class="icon-button" aria-label="Close dialog">
+          <button
+            type="button"
+            id="closeEditor"
+            class="icon-button"
+            aria-label="Close dialog"
+          >
             ×
           </button>
         </div>
@@ -137,7 +168,9 @@
         <p id="formError" class="form-error" role="alert" hidden></p>
         <div class="dialog-actions">
           <button type="button" id="cancelEditor" class="button">Cancel</button>
-          <button id="save" class="button primary" type="submit">Save changes</button>
+          <button id="save" class="button primary" type="submit">
+            Save changes
+          </button>
         </div>
       </form>
     </dialog>

@@ -27,10 +27,16 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  attendance         AttendanceRecord[]
+  attendanceRequests AttendanceCorrectionRequest[] @relation("AttendanceRequester")
+  attendanceReviews  AttendanceCorrectionRequest[] @relation("AttendanceReviewer")
+
+  documents Document[]
   sessions Session[]
   contacts Contact[]
   tasks    Task[]
 
+  @@unique([orgId, id])
   @@map("users")
 }
 
@@ -74,8 +80,9 @@ model TeamRequest {
 }
 
 model Organisation {
-  id        String   @id
-  createdAt DateTime @default(now())
+  attendanceSettings AttendanceSettings?
+  id                 String              @id
+  createdAt          DateTime            @default(now())
 }
 
 model Contact {
@@ -180,4 +187,87 @@ model Activity {
   createdAt   DateTime @default(now())
 
   @@index([orgId, createdAt, id])
+}
+
+// Workdays are calendar dates in the policy timezone; events are UTC instants.
+model AttendanceSettings {
+  orgId           String       @id
+  organisation    Organisation @relation(fields: [orgId], references: [id], onDelete: Restrict)
+  timeZone        String       @default("UTC")
+  workingDays     Int[]        @default([1, 2, 3, 4, 5])
+  startTime       String       @default("09:30")
+  endTime         String       @default("18:00")
+  graceMinutes    Int          @default(15)
+  expectedMinutes Int          @default(480)
+  updatedAt       DateTime     @updatedAt
+}
+
+model AttendanceRecord {
+  id        String            @id @default(uuid())
+  orgId     String
+  userId    String
+  user      User              @relation(fields: [orgId, userId], references: [orgId, id], onDelete: Restrict)
+  workDate  DateTime          @db.Date
+  checkIn   DateTime
+  checkOut  DateTime?
+  policy    Json
+  version   Int               @default(1)
+  breaks    AttendanceBreak[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([orgId, userId, workDate])
+  @@unique([orgId, id])
+  @@index([orgId, workDate])
+}
+
+model AttendanceBreak {
+  id       String           @id @default(uuid())
+  orgId    String
+  recordId String
+  record   AttendanceRecord @relation(fields: [orgId, recordId], references: [orgId, id], onDelete: Restrict)
+  start    DateTime
+  end      DateTime?
+
+  @@index([orgId, recordId, start])
+}
+
+enum AttendanceDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AttendanceCorrectionRequest {
+  id          String             @id @default(uuid())
+  orgId       String
+  userId      String
+  user        User               @relation("AttendanceRequester", fields: [orgId, userId], references: [orgId, id], onDelete: Restrict)
+  workDate    DateTime           @db.Date
+  proposed    Json
+  baseVersion Int?
+  reason      String             @db.VarChar(1000)
+  status      AttendanceDecision @default(PENDING)
+  reviewedBy  String?
+  reviewer    User?              @relation("AttendanceReviewer", fields: [orgId, reviewedBy], references: [orgId, id], onDelete: Restrict)
+  reviewNote  String?            @db.VarChar(1000)
+  reviewedAt  DateTime?
+  createdAt   DateTime           @default(now())
+
+  @@index([orgId, status, createdAt])
+  @@index([orgId, userId, workDate])
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  orgId      String
+  uploaderId String
+  uploader   User     @relation(fields: [orgId, uploaderId], references: [orgId, id], onDelete: Cascade)
+  name       String   @db.VarChar(255)
+  size       Int
+  content    Bytes
+  createdAt  DateTime @default(now())
+
+  @@index([orgId, createdAt])
+  @@index([uploaderId])
 }

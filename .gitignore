@@ -9,3 +9,6 @@ coverage/
 Thumbs.db
 crm-backend/uploads/*
 !crm-backend/uploads/.gitkeep
+
+# Local verification scratch files and database backups.
+/work/
