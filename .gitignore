@@ -12,3 +12,6 @@ crm-backend/uploads/*
 
 # Local verification scratch files and database backups.
 /work/
+
+# Generated React production assets.
+/front end/dist/

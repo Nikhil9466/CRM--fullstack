@@ -2,58 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Create workspace — Virtual Binz</title>
-    <link rel="stylesheet" href="dashboard.css" />
-    <script src="session.js" defer></script>
-    <script src="password-visibility.js" defer></script>
-    <script src="auth.js" defer></script>
   </head>
-  <body class="auth-page" data-mode="signup">
-    <main class="auth-card panel">
-      <a href="login.html" class="brand">
-        <span class="brand-mark">vb</span>
-        <span>
-          Virtual Binz
-          <small>YOUR RELATIONSHIP WORKSPACE</small>
-        </span>
-      </a>
-      <h1>Create workspace</h1>
-      <p class="subtitle">
-        Start a new organisation as its administrator. To join an existing team, ask its admin to
-        create your account.
-      </p>
-      <form id="authForm">
-        <label>
-          Your full name
-          <input name="name" type="text" required maxlength="20" autocomplete="name" />
-        </label>
-        <label>
-          Email
-          <input name="email" type="email" required autocomplete="email" maxlength="254" />
-        </label>
-        <label>
-          Phone (10 digits)
-          <input name="phone" type="tel" required pattern="[0-9]{10}" maxlength="10" />
-        </label>
-        <label>
-          New organisation ID
-          <input name="orgId" type="text" required maxlength="80" placeholder="e.g. BINZ-STUDIO" />
-        </label>
-        <label>
-          Password (12+ characters)
-          <input
-            name="password"
-            type="password"
-            required
-            minlength="12"
-            autocomplete="new-password"
-          />
-        </label>
-        <p id="authError" class="form-error" role="alert" hidden></p>
-        <button id="authSubmit" class="button primary">Create workspace</button>
-      </form>
-      <p class="auth-link"><a href="login.html">Already have an account? Log in</a></p>
-    </main>
+  <body class="auth-page">
+    <div id="root"></div>
+    <script src="/session.js"></script>
+    <script type="module" src="/src/auth-main.jsx"></script>
   </body>
 </html>

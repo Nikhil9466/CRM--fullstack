@@ -1,14 +1,15 @@
 # Virtual Binz CRM
 
 A team CRM for managing contacts, deals, tasks and sales pipelines. Built with
-Express, Prisma and PostgreSQL, with a browser frontend served by the backend.
+React, Vite, Express, Prisma and PostgreSQL. The backend serves the compiled
+React frontend beside the protected API.
 
 ## Included
 
 - Responsive dashboard: real contact count, active deals, won value this month,
   pending tasks, six-month wins chart, pipeline totals and today's tasks.
-- Working Contacts, Deals and Tasks views: create/edit, admin-only permanent
-  deletion, pagination and filtering. Admin contact assignment.
+- Working Contacts, Deals and Tasks views: create/edit, role-scoped recycle-bin
+  deletion, pagination and filtering. Manager contact assignment.
 - Contact-linked deals, INR amounts, expected close dates and stage dropdowns.
 - Admin-editable pipeline names/order and custom Open/Won/Lost-type stages.
 - Task completion, due dates, optional contact OR deal link.
@@ -18,30 +19,46 @@ Express, Prisma and PostgreSQL, with a browser frontend served by the backend.
 
 Excluded: CSV import/export, tags, kanban dragging, notifications, notes and exportable reports.
 
-The backend serves **front end/home.html** and its supporting files.
+The React source is in **front end/src/**. All pages use React components, state
+and event handlers: overview, records, teams, history, attendance, documents,
+profile and authentication. The UI includes consistent SVG icons, responsive
+navigation, light/dark themes and keyboard-accessible dialogs.
+
+Vite compiles the six HTML entrypoints into **front end/dist/**, which Express
+serves on the same origin as the API. Generated assets are ignored by Git.
+The older standalone dashboard/attendance scripts are retained for historical
+regression checks; the React pages do not load them. Session handling remains
+in **front end/session.js**, shared by the React pages.
 Back up your PostgreSQL database before applying migrations, and test upgrades
 against a copy first. Keep `.env` private.
 
 ## Run locally
 
-Requires Node.js 20+ and a running PostgreSQL database.
+Requires Node.js 20.19+ or 22.12+ and a running PostgreSQL database.
 From the repository root:
 
-    cd crm-backend
     npm ci
-    cp .env.example .env
+    npm ci --prefix crm-backend
+    cp crm-backend/.env.example crm-backend/.env
 
 Edit .env: set DATABASE_URL to your PostgreSQL connection string.
 JWT_SECRET and JWT_EXPIRES_IN are no longer used.
 
 Then:
 
-    npm run prisma:generate
-    npm run db:deploy
+    npm run prisma:generate --prefix crm-backend
+    npm run db:deploy --prefix crm-backend
     npm start
 
 Open **http://localhost:4000**. Do not open home.html by double-clicking or
 through Live Server: frontend and API are intentionally served together.
+
+`npm start` builds the React frontend before starting the backend. Existing
+`cd crm-backend && npm start` usage also builds it, using the root dependencies.
+After changing the frontend, restart with `npm start`, or use `npm run dev`
+from the root for automatic React updates at **http://localhost:5173**.
+Development proxies `/api` to port 4000 and sets the matching allowed origin.
+Stop either mode with Ctrl+C. Do not run both modes at once on the same port.
 
 ### Existing database / account
 
@@ -77,16 +94,16 @@ deployment gateway if you require an invitation-only installation.
 
 ## Permissions
 
-| Action | Employee | Sub-admin | Admin |
-| --- | --- | --- | --- |
-| View/edit CRM records, search and dashboard | Assigned work | Own team | Organisation |
-| Assign contacts/tasks | Self | Own team | Organisation |
-| Delete CRM records | No | Own team | Organisation |
-| Remove employees from a team | No | Own team | Any team |
-| Add/transfer employees to a team | No | Request approval | Directly / approve requests |
-| Create accounts, appoint leaders, change roles | No | No | Yes |
-| Configure shared pipeline stages | No | No | Yes |
-| Access another organisation's data | No | No | No |
+| Action                                         | Employee      | Sub-admin        | Admin                       |
+| ---------------------------------------------- | ------------- | ---------------- | --------------------------- |
+| View/edit CRM records, search and dashboard    | Assigned work | Own team         | Organisation                |
+| Assign contacts/tasks                          | Self          | Own team         | Organisation                |
+| Delete CRM records                             | No            | Own team         | Organisation                |
+| Remove employees from a team                   | No            | Own team         | Any team                    |
+| Add/transfer employees to a team               | No            | Request approval | Directly / approve requests |
+| Create accounts, appoint leaders, change roles | No            | No               | Yes                         |
+| Configure shared pipeline stages               | No            | No               | Yes                         |
+| Access another organisation's data             | No            | No               | No                          |
 
 Assignments determine record visibility. Roles and team membership are read from the database on each request.
 Admins cannot demote/deactivate themselves. Deactivation invalidates existing
@@ -134,10 +151,22 @@ Company filtering means the contact's company, not cross-tenant organisation acc
 For API integration, migrate a separate disposable PostgreSQL test database first.
 Never use production:
 
-    CRM_TEST_DATABASE_URL="postgresql://user:pass@localhost:5432/crm_test" npm run test:integration
+    CRM_TEST_DATABASE_URL="postgresql://user:pass@localhost:5432/crm_test" npm run test:integration --prefix crm-backend
 
 Tests create isolated organisations and clean up their own records. Without
 CRM_TEST_DATABASE_URL, integration tests skip rather than using your .env.
+
+`npm run test:ui` checks the actual React pages in Chromium. The attendance and
+document edge cases use mocked API responses. To include the full browser/API
+workflow, start a server against the disposable test database, then run:
+
+    CRM_TEST_DATABASE_URL="postgresql://user:pass@localhost:5432/crm_test" CRM_UI_BASE_URL="http://localhost:4100" npm run test:ui
+
+The full workflow skips without an explicit test database and refuses the known
+local `virtual_binz` database. It covers authentication, role access, records,
+teams, history, documents, attendance and mobile layout. Install a Playwright
+Chromium browser if one is not available; `CRM_CHROMIUM_PATH` can select an
+existing executable.
 
 ## Before production
 
@@ -146,7 +175,8 @@ deployment-specific rate limiting. Login rate limits are in-process, not shared
 across multiple server instances. Configure proxy trust for your actual topology.
 
 Set NODE_ENV=production and APP_ORIGIN to the exact public HTTPS origin (no trailing slash), e.g. https://crm.example.com. Production startup requires HTTPS configuration; cookies use the __Host- prefix, Secure, HttpOnly and no Domain attribute. Serve frontend and API on that same origin. A strict Content Security Policy is still recommended. Complete a deployment/security review before using
-real customer information. Google Fonts is optional; system fonts are the fallback.
+real customer information. The React frontend uses system fonts and local
+assets without requiring external font requests.
 
 ## API map
 
@@ -165,7 +195,6 @@ return arrays. Money is represented as decimal strings. Contact edits submit the
 full contact form; deal/task edits allow partial fields. Record text is escaped
 before rendering HTML.
 
-
 ## Team roles and profile (September 2026)
 
 Open your profile using the avatar beside the sun/moon theme toggle. It shows your name, email, phone, organisation, team, role, account status and join date, with a change-password link.
@@ -182,7 +211,6 @@ Migration `20260923000000_teams_and_roles` renames existing USER accounts to EMP
 
 Run `npm test` for unit validation. With `CRM_TEST_DATABASE_URL` set to a **dedicated disposable PostgreSQL database** migrated to the latest schema, run `npm run test:integration` for auth, isolation, CRM CRUD, team permissions, approval/rejection, concurrent approval, membership removal, profile data and performance tests. Integration tests never use the normal `.env` database by default.
 
-
 ### Login regression checks
 
 Changing Employee → Admin keeps the same email and password. The account must be active. Refreshing/navigation reloads the current role and team from the server, so existing sessions receive the new permissions. A profile includes a Switch account button, and password inputs include Show/Hide controls.
@@ -190,7 +218,6 @@ Changing Employee → Admin keeps the same email and password. The account must 
 Failed login attempts are limited per email/IP (10 per 15 minutes), with an IP safety net (100 failures per 15 minutes) and bounded in-flight checks. Successful sign-ins do not use the failure quota. A blocked response includes Retry-After. Limits remain in-process for this local, single-server deployment.
 
 The test commands cover cookie sessions, CSRF rejection, server-side logout, expiry, remember-me, stale-tab handling, login throttling/concurrent guesses, promotion and fresh login, demotion, repeated/concurrent login, password reset authorization, password-change session revocation, and disabled-account recovery. Browser verification also exercises switching accounts in two tabs and the contact/task forms using a separate disposable database.
-
 
 ## Activity history and recycle bin
 
@@ -244,21 +271,21 @@ Migration `20260926000000_attendance` is additive: it creates `AttendanceSetting
 
 All routes below are under `/api` and use existing authenticated session/CSRF middleware:
 
-| Method | Route | Access / purpose |
-| --- | --- | --- |
-| GET | `/attendance/settings` | Signed-in users read their workspace policy |
-| PUT | `/attendance/settings` | Admin configures policy |
-| GET | `/attendance/today` | Own current day plus any open workday |
-| POST | `/attendance/check-in` | Own check-in, empty JSON body |
-| POST | `/attendance/start-break` | Own break start, empty JSON body |
-| POST | `/attendance/end-break` | Own break end, empty JSON body |
-| POST | `/attendance/check-out` | Own checkout, empty JSON body |
-| POST | `/attendance/records/:id/resume` | Admin only; `{version, reason}` reopens their own or an active employee’s completed current workday |
-| GET | `/attendance/history?from=YYYY-MM-DD&to=YYYY-MM-DD` | Own history; maximum 93 days |
-| GET | `/attendance/report?date=YYYY-MM-DD&teamId=…&employeeId=…&status=…&page=1` | Admin organisation / sub-admin team dashboard |
-| GET | `/attendance/corrections?view=mine&status=PENDING&page=1` | Own requests; `view=review` is admin-only |
-| POST | `/attendance/corrections` | Own `{workDate, reason, proposed: {checkIn, checkOut, breaks: [{start,end}]}}`; timestamps must be UTC ISO strings |
-| PATCH | `/attendance/corrections/:id` | Admin `{status: "APPROVED" or "REJECTED", reviewNote?}` |
+| Method | Route                                                                      | Access / purpose                                                                                                   |
+| ------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/attendance/settings`                                                     | Signed-in users read their workspace policy                                                                        |
+| PUT    | `/attendance/settings`                                                     | Admin configures policy                                                                                            |
+| GET    | `/attendance/today`                                                        | Own current day plus any open workday                                                                              |
+| POST   | `/attendance/check-in`                                                     | Own check-in, empty JSON body                                                                                      |
+| POST   | `/attendance/start-break`                                                  | Own break start, empty JSON body                                                                                   |
+| POST   | `/attendance/end-break`                                                    | Own break end, empty JSON body                                                                                     |
+| POST   | `/attendance/check-out`                                                    | Own checkout, empty JSON body                                                                                      |
+| POST   | `/attendance/records/:id/resume`                                           | Admin only; `{version, reason}` reopens their own or an active employee’s completed current workday                |
+| GET    | `/attendance/history?from=YYYY-MM-DD&to=YYYY-MM-DD`                        | Own history; maximum 93 days                                                                                       |
+| GET    | `/attendance/report?date=YYYY-MM-DD&teamId=…&employeeId=…&status=…&page=1` | Admin organisation / sub-admin team dashboard                                                                      |
+| GET    | `/attendance/corrections?view=mine&status=PENDING&page=1`                  | Own requests; `view=review` is admin-only                                                                          |
+| POST   | `/attendance/corrections`                                                  | Own `{workDate, reason, proposed: {checkIn, checkOut, breaks: [{start,end}]}}`; timestamps must be UTC ISO strings |
+| PATCH  | `/attendance/corrections/:id`                                              | Admin `{status: "APPROVED" or "REJECTED", reviewNote?}`                                                            |
 
 ### Validation and future scope
 

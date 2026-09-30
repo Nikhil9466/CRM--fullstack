@@ -1,0 +1,22 @@
+{
+  "name": "virtual-binz-crm",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "vite build && node scripts/copy-session.mjs",
+    "start": "npm --prefix crm-backend start",
+    "test": "npm --prefix crm-backend test",
+    "test:ui": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.4",
+    "vite": "^7.1.7",
+    "@playwright/test": "^1.58.0"
+  }
+}

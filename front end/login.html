@@ -2,47 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Welcome back — Virtual Binz</title>
-    <link rel="stylesheet" href="dashboard.css" />
-    <script src="session.js" defer></script>
-    <script src="password-visibility.js" defer></script>
-    <script src="auth.js" defer></script>
   </head>
-  <body class="auth-page" data-mode="login">
-    <main class="auth-card panel">
-      <a href="login.html" class="brand">
-        <span class="brand-mark">vb</span>
-        <span>
-          Virtual Binz
-          <small>YOUR RELATIONSHIP WORKSPACE</small>
-        </span>
-      </a>
-      <h1>Welcome back</h1>
-      <p class="subtitle">Use your account email and password. Changing your role does not change your password. All tabs in this browser profile share one login.</p>
-      <form id="authForm">
-        <label>
-          Email
-          <input name="email" type="email" required autocomplete="email" maxlength="254" />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" required autocomplete="current-password" />
-        </label>
-        <label class="remember">
-          <input type="checkbox" name="remember" />
-          Keep me signed in
-        </label>
-        <p id="authError" class="form-error" role="alert" hidden></p>
-        <button id="authSubmit" class="button primary">Sign in</button>
-      </form>
-      <p class="auth-link">
-        <a href="signup.html">Create a new workspace</a>
-        ·
-        <a href="forgot-password.html">Password help</a>
-        ·
-        <a href="account.html">Change password</a>
-      </p>
-    </main>
+  <body class="auth-page">
+    <div id="root"></div>
+    <script src="/session.js"></script>
+    <script type="module" src="/src/auth-main.jsx"></script>
   </body>
 </html>

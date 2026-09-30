@@ -2,47 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Change password — Virtual Binz</title>
-    <link rel="stylesheet" href="dashboard.css" />
-    <script src="session.js" defer></script>
-    <script src="password-visibility.js" defer></script>
-    <script src="auth.js" defer></script>
   </head>
-  <body class="auth-page" data-mode="password">
-    <main class="auth-card panel">
-      <a href="login.html" class="brand">
-        <span class="brand-mark">vb</span>
-        <span>
-          Virtual Binz
-          <small>YOUR RELATIONSHIP WORKSPACE</small>
-        </span>
-      </a>
-      <h1>Change password</h1>
-      <p class="subtitle">You must be logged in. Changing your password signs out all sessions.</p>
-      <form id="authForm">
-        <label>
-          Current password
-          <input name="currentPassword" type="password" required autocomplete="current-password" />
-        </label>
-        <label>
-          New password (12+ characters)
-          <input
-            name="password"
-            type="password"
-            required
-            minlength="12"
-            autocomplete="new-password"
-          />
-        </label>
-        <p id="authError" class="form-error" role="alert" hidden></p>
-        <button id="authSubmit" class="button primary">Change password</button>
-      </form>
-      <p class="auth-link">
-        <a href="home.html">Back to dashboard</a>
-        ·
-        <a href="login.html">Log in</a>
-      </p>
-    </main>
+  <body class="auth-page">
+    <div id="root"></div>
+    <script src="/session.js"></script>
+    <script type="module" src="/src/auth-main.jsx"></script>
   </body>
 </html>

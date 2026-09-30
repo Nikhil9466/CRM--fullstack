@@ -18,7 +18,9 @@ app.use("/api", (req, res) =>
   res.status(404).json({ error: "Endpoint not found." }),
 );
 app.get("/", (req, res) => res.redirect("/home.html"));
-app.use(express.static(path.join(__dirname, "../../front end")));
+// The React build is served beside the API so cookie and CSRF protection stay
+// on the same origin. Source files and development tools are not public.
+app.use(express.static(path.join(__dirname, "../../front end/dist")));
 app.use((err, req, res, next) => {
   if (err.status && err.status < 500)
     return res.status(err.status).json({ error: err.message });

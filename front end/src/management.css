@@ -1,0 +1,298 @@
+.management-stack {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.management-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.management-links > .button + .button {
+  margin-left: 0;
+}
+.management-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+}
+.management-person strong,
+.management-roster strong {
+  display: block;
+}
+.management-small-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 11px;
+  flex: none;
+}
+.management-row-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.management-status {
+  white-space: nowrap;
+}
+.management-status.success {
+  color: #157a58;
+  background: rgba(37, 164, 119, 0.1);
+}
+.management-status.muted {
+  color: var(--muted);
+  background: var(--surface-soft, rgba(128, 128, 128, 0.08));
+}
+.management-team-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px;
+  text-decoration: none;
+  color: inherit;
+}
+.management-team-link p {
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+.management-team-link > span {
+  font-size: 28px;
+  color: var(--accent);
+}
+.management-teams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.management-team-card {
+  min-width: 0;
+}
+.management-team-body {
+  padding: 0 24px 24px;
+}
+.management-roster {
+  list-style: none;
+  margin: 14px 0 22px;
+  padding: 0;
+}
+.management-roster li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.management-roster .management-person {
+  min-width: 0;
+}
+.management-team-add {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.management-team-add > label {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.management-team-add select {
+  width: 100%;
+  min-width: 0;
+}
+.management-team-add button {
+  flex: none;
+}
+.management-muted {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.management-progress {
+  height: 5px;
+  width: 90px;
+  border-radius: 9px;
+  background: var(--surface-soft, rgba(128, 128, 128, 0.12));
+  margin-top: 7px;
+  overflow: hidden;
+}
+.management-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 9px;
+  background: var(--accent, #564ad1);
+}
+.management-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 30px;
+  border-bottom: 1px solid var(--border);
+}
+.management-profile-hero h2 {
+  font-size: 24px;
+  margin: 6px 0;
+}
+.management-profile-hero p:not(.eyebrow) {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.management-profile-avatar {
+  width: 76px;
+  height: 76px;
+  font-size: 24px;
+  flex: none;
+}
+.management-profile-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+  padding: 8px 30px 24px;
+  margin: 0;
+}
+.management-profile-details > div {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.management-profile-details dt {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.management-profile-details dd {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.management-security {
+  padding: 26px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.management-security h2 {
+  margin: 0 0 6px;
+}
+.management-security p {
+  color: var(--muted);
+  margin: 0;
+}
+.management-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.management-history-note {
+  margin: 0;
+  padding: 16px 24px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.7;
+}
+.management-history-details {
+  font-size: 12px;
+  line-height: 1.7;
+  max-width: 400px;
+  overflow-wrap: anywhere;
+}
+.management-history-details strong {
+  display: inline;
+  font-weight: 600;
+}
+.management-history-time {
+  min-width: 140px;
+  white-space: nowrap;
+}
+.management-retry {
+  margin: 0 24px 24px;
+}
+.management-history-filters label {
+  min-width: 130px;
+}
+.management-stack .panel-head p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 5px 0 0;
+}
+.management-stack small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+@media (max-width: 1100px) {
+  .management-teams {
+    grid-template-columns: 1fr;
+  }
+  .management-team-add {
+    flex-wrap: wrap;
+  }
+  .management-team-add > label {
+    min-width: 180px;
+  }
+}
+@media (max-width: 650px) {
+  .management-stack {
+    gap: 18px;
+  }
+  .management-profile-hero {
+    padding: 24px 20px;
+    gap: 15px;
+  }
+  .management-profile-avatar {
+    width: 58px;
+    height: 58px;
+    font-size: 19px;
+  }
+  .management-profile-hero h2 {
+    font-size: 20px;
+  }
+  .management-profile-details {
+    grid-template-columns: 1fr;
+    padding: 0 20px 20px;
+  }
+  .management-security {
+    padding: 22px 20px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .management-team-link {
+    padding: 22px 20px;
+  }
+  .management-team-body {
+    padding: 0 20px 20px;
+  }
+  .management-stack .panel-head {
+    flex-wrap: wrap;
+  }
+  .management-team-add > label {
+    min-width: 100%;
+    flex-basis: 100%;
+  }
+  .management-team-add > .button {
+    width: 100%;
+  }
+  .management-history-note {
+    padding: 14px 20px;
+  }
+  .management-actions {
+    width: 100%;
+  }
+  .management-person {
+    min-width: 150px;
+  }
+}
