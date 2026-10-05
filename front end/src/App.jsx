@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { syncTheme, toggleTheme } from "./theme-transition.js";
 import {
   api,
   allChoices,
@@ -137,8 +144,12 @@ function Overview({ onNew, notify }) {
   return (
     <>
       <div className="kpis">
-        {kpis.map(([label, value, icon, foot, color]) => (
-          <article className="kpi" key={label}>
+        {kpis.map(([label, value, icon, foot, color], index) => (
+          <article
+            className={"kpi kpi-" + color}
+            key={label}
+            style={{ "--enter-delay": index * 65 + "ms" }}
+          >
             <div className="kpi-top">
               <span>{label}</span>
               <span className={"kpi-icon " + color}>
@@ -208,6 +219,7 @@ function Overview({ onNew, notify }) {
                         "bar " + (i === d.monthly.length - 1 ? "latest" : "")
                       }
                       style={{
+                        "--chart-delay": 180 + i * 75 + "ms",
                         height:
                           Math.max(m.count ? 5 : 0, (m.count / max) * 100) +
                           "%",
@@ -1246,9 +1258,8 @@ export default function App() {
   useEffect(() => {
     if (identity) reloadMetadata().catch((e) => notify(e.message, true));
   }, [view]);
-  useEffect(() => {
-    document.documentElement.dataset.theme = mode;
-    localStorage.setItem("vb-theme", mode);
+  useLayoutEffect(() => {
+    syncTheme(mode);
   }, [mode]);
   useEffect(() => {
     const navigate = () => {
@@ -1501,9 +1512,7 @@ export default function App() {
                 aria-label={
                   "Switch to " + (mode === "light" ? "dark" : "light") + " mode"
                 }
-                onClick={() =>
-                  setMode((m) => (m === "light" ? "dark" : "light"))
-                }
+                onClick={(event) => toggleTheme(event, setMode)}
               >
                 <Icon name={mode === "light" ? "moon" : "sun"} size={19} />
               </button>
@@ -1535,11 +1544,23 @@ export default function App() {
             )}
             <section className="page-heading">
               <div>
-                <p className="eyebrow">
-                  {current === "overview"
-                    ? "YOUR WORKSPACE AT A GLANCE"
-                    : "YOUR SHARED WORKSPACE"}
-                </p>
+                <div className="heading-context">
+                  <p className="eyebrow">
+                    {current === "overview"
+                      ? "YOUR WORKSPACE AT A GLANCE"
+                      : "YOUR SHARED WORKSPACE"}
+                  </p>
+                  {current === "overview" && (
+                    <time className="workspace-date" dateTime={today()}>
+                      <Icon name="clock" size={12} />
+                      {new Date().toLocaleDateString("en-IN", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </time>
+                  )}
+                </div>
                 <h1>
                   {current === "overview"
                     ? "Hello, " + user.name.split(" ")[0] + "."
@@ -1580,6 +1601,7 @@ export default function App() {
             </section>
             <div
               id="content"
+              className="workspace-view"
               key={current + revision + user.role + (user.teamId || "")}
             >
               {current === "overview" ? (

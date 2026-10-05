@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./ui.jsx";
+import Mascot from "./Mascot.jsx";
+import { syncTheme, toggleTheme } from "./theme-transition.js";
 import "./auth.css";
+import "./auth-polish.css";
 
 const modes = {
   login: {
@@ -72,7 +75,7 @@ function Brand() {
   );
 }
 
-function BrandPanel() {
+function BrandPanel({ mood }) {
   return (
     <aside className="auth-brand-panel">
       <Brand />
@@ -81,59 +84,18 @@ function BrandPanel() {
           <span /> YOUR TEAM’S EVERYDAY WORKSPACE
         </span>
         <h2>
-          Good relationships.
+          Big plans.
           <br />
-          Great possibilities.
+          Better together.
         </h2>
         <p>
           Keep your people, conversations, and next steps beautifully connected.
         </p>
-        <div className="auth-workspace-preview" aria-hidden="true">
-          <div className="auth-preview-top">
-            <span className="auth-preview-dot" />
-            <span className="auth-preview-dot" />
-            <span className="auth-preview-dot" />
-            <span className="auth-preview-label">
-              A little clarity, every day
-            </span>
-          </div>
-          <div className="auth-preview-content">
-            <div className="auth-preview-heading">
-              <span>Your next good connection</span>
-              <span className="auth-preview-chip">In progress</span>
-            </div>
-            <div className="auth-preview-person">
-              <span className="auth-preview-avatar">
-                <Icon name="users" size={23} />
-              </span>
-              <div>
-                <strong>People first.</strong>
-                <span>Everything else, in one place.</span>
-              </div>
-            </div>
-            <div className="auth-preview-track">
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="auth-preview-check">
-              <span>
-                <Icon name="check" size={14} />
-              </span>
-              One clear next step.
-              <span className="auth-preview-pill">Ready</span>
-            </div>
-          </div>
-          <div className="auth-floating-note">
-            <span>
-              <Icon name="check" size={16} />
-            </span>
-            <div>
-              <strong>Room to do your best work</strong>
-              <span>Less juggling. More moving forward.</span>
-            </div>
-          </div>
+        <Mascot mood={mood} />
+        <div className="auth-story-bottom">
+          <span>People.</span>
+          <span>Plans.</span>
+          <span>Possibilities.</span>
         </div>
       </div>
       <div className="auth-brand-footer">
@@ -155,18 +117,40 @@ function Field({
   ...props
 }) {
   const [visible, setVisible] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [valid, setValid] = useState(false);
+  const input = useRef(null);
   const id = `auth-${name}`;
+  useEffect(() => {
+    setValid(Boolean(value) && input.current.validity.valid);
+  }, [value]);
   return (
-    <div className="auth-field">
-      <label htmlFor={id}>{label}</label>
+    <div
+      className={`auth-field${valid ? " auth-field-ready" : ""}${touched && !valid ? " auth-field-incomplete" : ""}`}
+    >
+      <label htmlFor={id}>
+        {label}
+        {valid && (
+          <span className="auth-field-check" aria-hidden="true">
+            <Icon name="check" size={12} />
+          </span>
+        )}
+      </label>
       <div className={`auth-input-wrap${icon ? " auth-input-with-icon" : ""}`}>
         {icon && <Icon name={icon} size={18} />}
         <input
           {...props}
+          ref={input}
           id={id}
           name={name}
           value={value}
           onChange={onChange}
+          onBlur={() => setTouched(true)}
+          onInvalid={() => {
+            setTouched(true);
+            setValid(false);
+          }}
+          aria-invalid={touched && !valid ? "true" : undefined}
           type={
             password ? (visible ? "text" : "password") : props.type || "text"
           }
@@ -253,11 +237,53 @@ export default function AuthApp() {
     () => sessionStorage.getItem("crm-login-message") || "",
   );
   const [success, setSuccess] = useState("");
+  const [theme, setTheme] = useState(
+    () =>
+      localStorage.getItem("vb-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
+  );
+  const [fieldStatus, setFieldStatus] = useState({});
+  const requiredFields =
+    mode === "signup"
+      ? ["name", "email", "phone", "orgId", "password"]
+      : mode === "password"
+        ? ["currentPassword", "password"]
+        : ["email", "password"];
+  const readyCount = requiredFields.filter(
+    (name) => fieldStatus[name]?.valid,
+  ).length;
+  // Nova only receives a mood. Form values, including passwords, never reach the illustration.
+  const mood = !["login", "signup", "password"].includes(mode)
+    ? "help"
+    : success
+      ? "success"
+      : busy
+        ? "busy"
+        : error
+          ? "error"
+          : readyCount === requiredFields.length
+            ? "excited"
+            : "happy";
+
+  const noteField = (target, touched = false) => {
+    if (target.tagName !== "INPUT" || target.type === "checkbox") return;
+    const { name, value, validity } = target;
+    setFieldStatus((previous) => ({
+      ...previous,
+      [name]: {
+        valid: Boolean(value) && validity.valid,
+        touched: touched || previous[name]?.touched || false,
+      },
+    }));
+  };
 
   useEffect(() => {
     document.title = `${{ login: "Welcome back", signup: "Create workspace", password: "Change password", forgot: "Password help", reset: "Password recovery" }[mode]} — Virtual Binz`;
     if (notice) sessionStorage.removeItem("crm-login-message");
   }, [mode, notice]);
+  useLayoutEffect(() => {
+    syncTheme(theme);
+  }, [theme]);
 
   const update = (event) => {
     const { name, value, checked, type } = event.target;
@@ -265,6 +291,9 @@ export default function AuthApp() {
       ...previous,
       [name]: type === "checkbox" ? checked : value,
     }));
+    noteField(event.target);
+    setError("");
+    setSuccess("");
   };
 
   async function submit(event) {
@@ -313,11 +342,9 @@ export default function AuthApp() {
         },
         mode === "password",
       );
-      const data = await response
-        .json()
-        .catch(() => ({
-          error: "The server returned an unexpected response. Please retry.",
-        }));
+      const data = await response.json().catch(() => ({
+        error: "The server returned an unexpected response. Please retry.",
+      }));
       if (!response.ok)
         throw new Error(data.error || "Please check your details.");
       if (mode === "password") {
@@ -327,6 +354,8 @@ export default function AuthApp() {
           "Password changed. Sign in with your new password.",
         );
         setSuccess("Password updated. Taking you back to sign in…");
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+          await new Promise((resolve) => setTimeout(resolve, 420));
         window.location.href = "login.html";
       } else {
         window.crmSession.signedIn(data);
@@ -335,6 +364,8 @@ export default function AuthApp() {
             ? "Your workspace is ready. Opening it now…"
             : "You’re signed in. Opening your workspace…",
         );
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+          await new Promise((resolve) => setTimeout(resolve, 420));
         window.location.href = "home.html";
       }
     } catch (err) {
@@ -351,7 +382,7 @@ export default function AuthApp() {
   const isForm = ["login", "signup", "password"].includes(mode);
   return (
     <main className={`auth-layout auth-mode-${mode}`}>
-      <BrandPanel />
+      <BrandPanel mood={mood} />
       <section className="auth-form-panel">
         <div className="auth-mobile-brand">
           <Brand />
@@ -379,15 +410,51 @@ export default function AuthApp() {
               </a>
             </>
           )}
+          <button
+            className="auth-theme-toggle"
+            type="button"
+            onClick={(event) => toggleTheme(event, setTheme)}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={17} />
+          </button>
         </div>
         <div className="auth-form-content">
+          <div className="auth-mobile-mascot">
+            <Mascot mood={mood} compact />
+          </div>
           <div className="auth-form-heading">
             <span className="auth-eyebrow">{content.eyebrow}</span>
             <h1>{content.title}</h1>
             <p>{content.description}</p>
           </div>
           {isForm ? (
-            <form onSubmit={submit} className="auth-form" aria-busy={busy}>
+            <form
+              onSubmit={submit}
+              onBlur={(event) => noteField(event.target, true)}
+              onInvalid={(event) => noteField(event.target, true)}
+              className="auth-form"
+              aria-busy={busy}
+            >
+              <div
+                className="auth-detail-progress"
+                aria-label={`${readyCount} of ${requiredFields.length} details ready`}
+              >
+                <div aria-hidden="true">
+                  {requiredFields.map((name, index) => (
+                    <span
+                      className={fieldStatus[name]?.valid ? "ready" : ""}
+                      key={name}
+                      style={{ "--step": index }}
+                    />
+                  ))}
+                </div>
+                <span>
+                  {readyCount === requiredFields.length
+                    ? "You're all set."
+                    : "A few details, and you're on your way."}
+                </span>
+              </div>
               {mode === "signup" && (
                 <Field
                   label="Your full name"

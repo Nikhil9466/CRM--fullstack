@@ -1,0 +1,83 @@
+:root.theme-revealing,
+:root.theme-revealing * {
+  /* Capture settled theme colors so they do not drift underneath the reveal. */
+  transition: none !important;
+}
+
+:root.theme-revealing::view-transition-group(root),
+:root.theme-revealing::view-transition-old(root),
+:root.theme-revealing::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+:root.theme-revealing::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+:root.theme-revealing::view-transition-old(root) {
+  z-index: 1;
+}
+
+:root.theme-revealing::view-transition-new(root) {
+  z-index: 2;
+}
+
+:root.theme-revealing::view-transition-group(theme-switch) {
+  z-index: 3;
+  animation: none;
+}
+
+:root.theme-revealing::view-transition-old(theme-switch) {
+  animation: none;
+  opacity: 0;
+}
+
+:root.theme-revealing::view-transition-new(theme-switch) {
+  animation: theme-switch-pop 1000ms linear both;
+}
+
+@keyframes theme-switch-pop {
+  0% {
+    transform: rotate(-90deg) scale(0.9);
+    opacity: 0.65;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+:root.theme-fading,
+:root.theme-fading
+  :where(
+    body,
+    .auth-layout,
+    .auth-brand-panel,
+    .auth-form-panel,
+    .app-shell,
+    .sidebar,
+    .topbar,
+    .panel,
+    .kpi,
+    input,
+    button,
+    .modal
+  ) {
+  transition:
+    background-color 1000ms linear,
+    color 1000ms linear,
+    border-color 1000ms linear,
+    box-shadow 1000ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.theme-fading,
+  :root.theme-fading *,
+  :root.theme-revealing::view-transition-group(*),
+  :root.theme-revealing::view-transition-old(*),
+  :root.theme-revealing::view-transition-new(*) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

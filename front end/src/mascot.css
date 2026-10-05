@@ -1,0 +1,250 @@
+.mascot-stage {
+  position: relative;
+  width: min(100%, 420px);
+  margin: 20px auto 0;
+  text-align: center;
+  isolation: isolate;
+}
+.nova-art {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  max-height: 340px;
+}
+.nova-float {
+  transform-origin: 200px 180px;
+  animation: nova-breathe 5s ease-in-out infinite;
+}
+.nova-shadow {
+  transform-origin: 200px 313px;
+  animation: nova-shadow 5s ease-in-out infinite;
+}
+.nova-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nova-blink 6.4s infinite;
+}
+.nova-wave {
+  transform-origin: 242px 266px;
+  animation: nova-wave 6s ease-in-out infinite;
+}
+.nova-sparkle {
+  transform-origin: center;
+  animation: nova-twinkle 4s ease-in-out infinite;
+}
+.nova-hello {
+  position: absolute;
+  right: 5%;
+  top: 9%;
+  z-index: 1;
+  background: #fffcf6;
+  color: #395149;
+  border: 1px solid #e6e5d5;
+  box-shadow: 0 5px 16px #3450320b;
+  border-radius: 14px 14px 14px 3px;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 650;
+  transform: rotate(5deg);
+  transition: background 0.2s;
+  max-width: 60%;
+}
+.nova-hello > span {
+  padding-left: 9px;
+  color: #9580be;
+  font-size: 15px;
+}
+.nova-caption {
+  color: #5e786a;
+  font-size: 11px;
+  line-height: 1.65;
+  margin: 0 !important;
+  min-height: 36px;
+}
+.nova-caption strong {
+  color: #375b49;
+  font-weight: 650;
+}
+.nova-mouth {
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.mascot-stage:is([data-mood="happy"], [data-mood="help"], [data-mood="error"])
+  .nova-mouth-happy {
+  opacity: 1;
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"])
+  .nova-mouth-excited {
+  opacity: 1;
+}
+.mascot-stage[data-mood="busy"] .nova-mouth-busy {
+  opacity: 1;
+}
+.nova-brow {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s;
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"]) .nova-brow {
+  transform: translateY(-4px);
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"]) .nova-float {
+  animation: nova-laugh 1.1s ease-in-out infinite;
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"]) .nova-wave {
+  animation: nova-laugh-wave 1.1s ease-in-out infinite;
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"]) .nova-shadow {
+  animation: nova-laugh-shadow 1.1s ease-in-out infinite;
+}
+@keyframes nova-laugh {
+  0%,
+  50%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  15%,
+  40%,
+  65% {
+    transform: translateY(-9px) rotate(1.5deg);
+  }
+  27%,
+  77% {
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+}
+@keyframes nova-laugh-wave {
+  0%,
+  50%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  20%,
+  70% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes nova-laugh-shadow {
+  0%,
+  50%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.17;
+  }
+  20%,
+  70% {
+    transform: scaleX(0.86);
+    opacity: 0.1;
+  }
+}
+.mascot-stage[data-mood="busy"] .nova-hello {
+  background: #eee8f8;
+}
+.mascot-stage[data-mood="success"] .nova-hello {
+  background: #dceeca;
+}
+.mascot-stage[data-mood="error"] .nova-hello {
+  background: #fff0e5;
+}
+.auth-mobile-mascot {
+  display: none;
+}
+@keyframes nova-breathe {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+@keyframes nova-shadow {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.92);
+    opacity: 0.12;
+  }
+}
+@keyframes nova-blink {
+  0%,
+  43%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.07);
+  }
+}
+@keyframes nova-wave {
+  0%,
+  8%,
+  25%,
+  100% {
+    transform: rotate(0);
+  }
+  13%,
+  21% {
+    transform: rotate(9deg);
+  }
+  17% {
+    transform: rotate(-6deg);
+  }
+}
+@keyframes nova-twinkle {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (max-width: 640px) {
+  .auth-mobile-mascot {
+    display: block;
+  }
+  .mascot-compact {
+    width: 180px;
+    margin: 3px auto 15px;
+  }
+  .mascot-compact .nova-art {
+    max-height: 145px;
+  }
+  .mascot-compact .nova-hello {
+    right: -27px;
+    top: 8%;
+    font-size: 9px;
+    padding: 7px 9px;
+    max-width: 85%;
+  }
+  .mascot-compact .nova-hello > span {
+    font-size: 11px;
+    padding-left: 5px;
+  }
+  .mascot-compact .nova-caption {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot-stage * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.nova-antenna-light {
+  filter: drop-shadow(0 0 6px #81b7a477);
+}
+.nova-cheek {
+  transition:
+    fill 0.2s,
+    opacity 0.2s;
+}
+.mascot-stage:is([data-mood="excited"], [data-mood="success"]) .nova-cheek {
+  fill: #e4a5c2;
+  opacity: 0.7;
+}

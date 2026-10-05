@@ -1,0 +1,41 @@
+.cursor-halo {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #168a79;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    border-color 0.2s,
+    width 0.2s,
+    height 0.2s;
+  background: #57c5ac08;
+  will-change: transform;
+}
+.cursor-halo.visible {
+  opacity: 0.65;
+}
+.cursor-halo.over-control {
+  width: 48px;
+  height: 48px;
+  border-color: #9b85d1;
+  background: #b3a0e814;
+}
+.cursor-halo.over-input {
+  opacity: 0;
+}
+.cursor-halo.pressed {
+  width: 22px;
+  height: 22px;
+  background: #57c5ac24;
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-halo {
+    display: none !important;
+  }
+}
