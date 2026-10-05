@@ -19,6 +19,7 @@ import {
 import { Brand, Empty, Icon, Loading, Modal, Pager } from "./ui.jsx";
 import Attendance from "./Attendance.jsx";
 import Documents from "./Documents.jsx";
+import WorkspaceNova from "./WorkspaceNova.jsx";
 import { History, Profile, Settings, Teams } from "./Management.jsx";
 
 const labels = {
@@ -1643,6 +1644,7 @@ export default function App() {
           onSaved={saved}
         />
       )}
+      <WorkspaceNova userId={user.id} view={current} paused={Boolean(editing) || mobile} />
     </>
   );
 }

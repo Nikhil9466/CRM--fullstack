@@ -1,0 +1,387 @@
+.workspace-nova {
+  --wn-idle-speed: 5000ms;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 56px;
+  height: 68px;
+  z-index: 25;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: normal;
+}
+
+.workspace-nova,
+.workspace-nova * {
+  box-sizing: border-box;
+}
+
+.workspace-nova.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.workspace-nova .wn-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.workspace-nova .wn-character {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 68px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  pointer-events: none;
+}
+
+.workspace-nova.is-visible .wn-character {
+  pointer-events: auto;
+}
+
+.workspace-nova .wn-character:focus-visible {
+  outline: 3px solid #58bca2;
+  outline-offset: 3px;
+}
+
+.workspace-nova .wn-model {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 78px;
+  height: 96px;
+  transform: scale(.64);
+  transform-origin: 0 0;
+}
+
+.workspace-nova .wn-direction {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.workspace-nova .wn-robot {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-origin: 50% 88%;
+  opacity: 1;
+  transition: opacity .2s ease;
+  animation: wn-breathe var(--wn-idle-speed) ease-in-out infinite;
+}
+
+.workspace-nova .wn-back {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.workspace-nova .wn-rear-panel {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  width: 33px;
+  height: 25px;
+  border-radius: 9px;
+  background: linear-gradient(130deg, #e9e4f3, #c0b7d6);
+  box-shadow: inset 0 0 0 1px #b6adca;
+}
+
+.workspace-nova .wn-rear-panel::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 7px;
+  width: 14px;
+  height: 2px;
+  border-radius: 3px;
+  background: #9c91b4;
+  box-shadow: 0 5px 0 #9c91b4, 0 10px 0 #9c91b4;
+}
+
+.workspace-nova .wn-back .wn-torso .wn-rear-light {
+  left: 13px;
+  top: 7px;
+  width: 7px;
+  height: 4px;
+  border-radius: 4px;
+  background: #9cd9bd;
+}
+
+.workspace-nova[data-facing="back"] .wn-robot {
+  opacity: 0;
+}
+
+.workspace-nova[data-facing="back"] .wn-back {
+  opacity: 1;
+}
+
+.workspace-nova .wn-screen,
+.workspace-nova .wn-eye,
+.workspace-nova .wn-brow,
+.workspace-nova .wn-cheek {
+  transition: inset .7s ease, opacity .7s ease, height .7s ease;
+}
+
+.workspace-nova .wn-antenna {
+  position: absolute;
+  width: 4px;
+  height: 13px;
+  left: 38px;
+  top: 9px;
+  border-radius: 4px;
+  background: #c9bfe4;
+}
+
+.workspace-nova .wn-antenna > span {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  left: -3.5px;
+  top: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ecfff4, #95d7c0 58%, #60a98d);
+  box-shadow: 0 0 0 3px #82cdb226, 0 0 8px #82cdb259;
+}
+
+.workspace-nova .wn-head {
+  position: absolute;
+  left: 7px;
+  top: 20px;
+  width: 64px;
+  height: 52px;
+  border-radius: 21px 21px 19px 19px;
+  background: linear-gradient(125deg, #fffefa 30%, #f2eff8 55%, #bdb1df);
+  box-shadow: inset 0 0 0 1px #d6d1e4, 0 3px 5px #233d3520;
+}
+
+.workspace-nova .wn-screen {
+  position: absolute;
+  inset: 5px 5px 6px;
+  border-radius: 17px 17px 15px 15px;
+  background: linear-gradient(130deg, #296565, #0f4047);
+  box-shadow: inset 0 1px 3px #052d3c70;
+  overflow: hidden;
+}
+
+.workspace-nova .wn-eye {
+  position: absolute;
+  top: 12px;
+  width: 13px;
+  height: 18px;
+  background: #f3ffed;
+  border-radius: 50%;
+}
+
+.workspace-nova .wn-eye-left { left: 9px; }
+.workspace-nova .wn-eye-right { right: 9px; }
+
+.workspace-nova .wn-pupil {
+  position: absolute;
+  left: 4px;
+  top: 5px;
+  width: 7px;
+  height: 10px;
+  border-radius: 50%;
+  background: #143e43;
+  transition: transform 100ms ease-out;
+}
+
+.workspace-nova .wn-pupil::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fbfffc;
+}
+
+.workspace-nova .wn-brow {
+  position: absolute;
+  top: 8px;
+  width: 12px;
+  height: 5px;
+  border-top: 2px solid #aadfcb;
+  border-radius: 50%;
+}
+
+.workspace-nova .wn-brow-left { left: 9px; transform: rotate(-6deg); }
+.workspace-nova .wn-brow-right { right: 9px; transform: rotate(6deg); }
+
+.workspace-nova .wn-cheek {
+  position: absolute;
+  top: 29px;
+  width: 8px;
+  height: 3px;
+  border-radius: 50%;
+  background: #6baea4;
+  opacity: .7;
+}
+
+.workspace-nova .wn-cheek-left { left: 5px; }
+.workspace-nova .wn-cheek-right { right: 5px; }
+
+.workspace-nova .wn-smile {
+  position: absolute;
+  left: 20px;
+  top: 28px;
+  width: 16px;
+  height: 10px;
+  border-bottom: 3px solid #bbecd3;
+  border-radius: 0 0 12px 12px;
+}
+
+.workspace-nova .wn-ear {
+  position: absolute;
+  top: 35px;
+  width: 8px;
+  height: 21px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eaffee, #8bc6ab);
+}
+
+.workspace-nova .wn-ear-left { left: 1px; }
+.workspace-nova .wn-ear-right { right: 0; }
+
+.workspace-nova .wn-torso {
+  position: absolute;
+  left: 24px;
+  top: 68px;
+  width: 32px;
+  height: 19px;
+  border-radius: 6px 6px 12px 12px;
+  background: linear-gradient(120deg, #fffef9, #c5b9e4);
+  box-shadow: inset 0 0 0 1px #c7bddc;
+}
+
+.workspace-nova .wn-torso > span {
+  position: absolute;
+  left: 10px;
+  top: 4px;
+  font-size: 12px;
+  color: #659d8a;
+}
+
+.workspace-nova .wn-arm {
+  position: absolute;
+  top: 68px;
+  width: 18px;
+  height: 6px;
+  background: #d3c8e9;
+  border-radius: 8px;
+  transform-origin: 90% 50%;
+}
+
+.workspace-nova .wn-arm-left { left: 8px; transform: rotate(-38deg); }
+.workspace-nova .wn-arm-right {
+  right: 6px;
+  transform-origin: 10% 50%;
+  transform: rotate(38deg);
+}
+
+.workspace-nova .wn-arm > span {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 10px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f7f6fc;
+}
+
+.workspace-nova .wn-arm-right > span { left: auto; right: -2px; }
+
+.workspace-nova .wn-leg {
+  position: absolute;
+  top: 84px;
+  width: 13px;
+  height: 8px;
+  border-radius: 4px 4px 6px 6px;
+  background: #bcb0d8;
+  transform-origin: 50% 0;
+}
+
+.workspace-nova .wn-leg-left { left: 23px; }
+.workspace-nova .wn-leg-right { right: 21px; }
+
+.workspace-nova[data-action="jump"] .wn-robot { animation: none; transform: rotate(-5deg); }
+.workspace-nova[data-action="jump"] .wn-arm-left { transform: rotate(35deg); }
+.workspace-nova[data-action="jump"] .wn-arm-right { transform: rotate(-35deg); }
+.workspace-nova[data-action="climb"] .wn-arm-left { animation: wn-grip .9s ease-in-out infinite alternate; }
+.workspace-nova[data-action="climb"] .wn-arm-right { animation: wn-grip .9s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="climb"] .wn-leg-left { animation: wn-step .9s ease-in-out infinite alternate; }
+.workspace-nova[data-action="climb"] .wn-leg-right { animation: wn-step .9s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="walk"] .wn-leg-left { animation: wn-stroll .8s ease-in-out infinite alternate; }
+.workspace-nova[data-action="walk"] .wn-leg-right { animation: wn-stroll .8s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="walk"] .wn-arm-left { animation: wn-step .9s ease-in-out infinite alternate; }
+.workspace-nova[data-action="walk"] .wn-arm-right { animation: wn-step .9s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="run"] .wn-robot { animation: wn-run-bob .36s ease-in-out infinite; }
+.workspace-nova[data-action="run"] .wn-leg-left { animation: wn-stroll .3s ease-in-out infinite alternate; }
+.workspace-nova[data-action="run"] .wn-leg-right { animation: wn-stroll .3s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="run"] .wn-arm-left { animation: wn-step .3s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="run"] .wn-arm-right { animation: wn-step .3s ease-in-out infinite alternate; }
+.workspace-nova[data-action="sit"] .wn-robot { animation: none; transform: translateY(4px); }
+.workspace-nova[data-action="sit"] .wn-leg-left { animation: wn-dangle 1.6s ease-in-out infinite alternate; }
+.workspace-nova[data-action="sit"] .wn-leg-right { animation: wn-dangle 1.6s ease-in-out infinite alternate-reverse; }
+.workspace-nova[data-action="curious"] .wn-head { animation: wn-curious 3.8s ease-in-out infinite; }
+.workspace-nova[data-action="stretch"] .wn-arm-left { transform: rotate(95deg); }
+.workspace-nova[data-action="stretch"] .wn-arm-right { transform: rotate(-95deg); }
+.workspace-nova[data-action="stretch"] .wn-robot { animation: wn-stretch 1.8s ease-in-out both; }
+.workspace-nova[data-action="yawn"] .wn-smile {
+  height: 12px;
+  width: 9px;
+  left: 23px;
+  top: 28px;
+  border: 0;
+  background: #bce8d6;
+  border-radius: 50%;
+}
+.workspace-nova[data-action="doze"] .wn-eye { top: 21px; height: 3px; }
+.workspace-nova[data-action="doze"] .wn-pupil { opacity: 0; }
+.workspace-nova[data-action="doze"] .wn-robot { animation: wn-breathe 6s ease-in-out infinite; }
+
+@keyframes wn-breathe { 50% { transform: translateY(-2px) rotate(2deg); } }
+@keyframes wn-grip { from { transform: rotate(35deg); } to { transform: rotate(100deg); } }
+@keyframes wn-step { to { transform: rotate(-35deg) translateY(-3px); } }
+@keyframes wn-stroll { from { transform: rotate(-14deg); } to { transform: rotate(16deg) translateY(-2px); } }
+@keyframes wn-dangle { from { transform: rotate(-12deg); } to { transform: rotate(20deg); } }
+@keyframes wn-curious { 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+@keyframes wn-stretch { 50% { transform: translateY(-4px) scaleY(1.05); } }
+@keyframes wn-run-bob {
+  0%, 100% { transform: rotate(var(--wn-run-lean, 4deg)); }
+  50% { transform: translateY(-3px) rotate(var(--wn-run-lean, 4deg)); }
+}
+
+.workspace-nova.is-paused,
+.workspace-nova.is-paused *,
+.workspace-nova.is-paused *::before,
+.workspace-nova.is-paused *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-nova,
+  .workspace-nova *,
+  .workspace-nova *::before,
+  .workspace-nova *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
