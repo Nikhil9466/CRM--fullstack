@@ -1,0 +1,14 @@
+[Unit]
+Description=Temporary CRM client demo
+StartLimitIntervalSec=180
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=/home/nagender/Desktop/CRM
+ExecStart=/usr/bin/python3 /home/nagender/Desktop/CRM/scripts/client-demo.py
+Restart=on-failure
+RestartSec=10
+KillMode=control-group
+TimeoutStopSec=15
+Environment=PYTHONUNBUFFERED=1
